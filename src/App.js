@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import jwtDecode from 'jwt-decode';
 
-import './App.css';
-
 function App() {
   const [user, setUser] = useState({});
 
@@ -38,7 +36,7 @@ function App() {
   return (
     <div className='App'>
       <div className='sign-in'>
-        <button id='sign-in-btn'></button>
+        <div id='sign-in-btn'></div>
         {user && (
           <div>
             <img src={user.picture} />

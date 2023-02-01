@@ -1,70 +1,117 @@
-# Getting Started with Create React App
+## Basic Google oAuth 2 Setup For React
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### Installs
 
-## Available Scripts
+1. `jwt-decode` - For decoding the web token sent from `google` into some meaningful info.
+2. `index.html` script tag as below.
 
-In the project directory, you can run:
+```js
+<script
+  src='https://accounts.google.com/gsi/client'
+  async
+  defer
+></script>
+```
 
-### `npm start`
+### Procedure
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+In a `useEffect`, inform the server for the presence of a google object present in your html so no errors are encountered.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```js
+/* global google */
+```
 
-### `npm test`
+Later using `google.accounts.id`;
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. Initialization.
 
-### `npm run build`
+```js
+google.accounts.id.initialize({
+  client_id:
+    '956329766193-cdgv0o9gv6vtf1o1166l0fhnf72hudg4.apps.googleusercontent.com',
+  callback: handleGoogleCallbackResponse,
+});
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+2. Render Button Creation
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```js
+google.accounts.id.renderButton(
+  document.getElementById('sign-in-btn'),
+  {
+    theme: 'outline',
+    size: 'large',
+  }
+);
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+3. Handling Response
 
-### `npm run eject`
+```js
+const [user, setUser] = useState({});
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+const handleGoogleCallbackResponse = (response) => {
+  console.log('Encoded JWT ID token: ' + response.credential);
+  var userObject = jwtDecode(response.credential);
+  //TODO USE REDUX TO SET USER
+  setUser(userObject);
+};
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### General Structure
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```js
+import { useEffect, useState } from 'react';
+import jwtDecode from 'jwt-decode';
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+function App() {
+  const [user, setUser] = useState({});
 
-## Learn More
+  const handleGoogleCallbackResponse = (response) => {
+    console.log('Encoded JWT ID token: ' + response.credential);
+    var userObject = jwtDecode(response.credential);
+    setUser(userObject);
+    document.getElementById('sign-in-btn').hidden = true;
+  };
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+  const handleSignOut = () => {
+    setUser({});
+    document.getElementById('sign-in-btn').hidden = false;
+  };
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+  useEffect(() => {
+    /* global google */
+    google.accounts.id.initialize({
+      client_id:
+        '956329766193-cdgv0o9gv6vtf1o1166l0fhnf72hudg4.apps.googleusercontent.com',
+      callback: handleGoogleCallbackResponse,
+    });
+    google.accounts.id.renderButton(
+      document.getElementById('sign-in-btn'),
+      {
+        theme: 'outline',
+        size: 'large',
+      }
+    );
+  }, []);
 
-### Code Splitting
+  return (
+    <div className='App'>
+      <div className='sign-in'>
+        <div id='sign-in-btn'></div>
+        {user && (
+          <div>
+            <img src={user.picture} />
+            <h4>{user.name}</h4>
+          </div>
+        )}
+      </div>
+      {Object.keys(user).length !== 0 && (
+        <button onClick={handleSignOut}>sign out</button>
+      )}
+    </div>
+  );
+}
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+export default App;
+```
