@@ -115,3 +115,11 @@ function App() {
 
 export default App;
 ```
+
+### Extra Bit
+
+Inside the `useEffect`, you can also prompt the user to sign in after page loading which will also involve all other functions called upon normal sign in.
+
+```js
+google.accounts.id.prompt();
+```

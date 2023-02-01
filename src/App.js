@@ -25,6 +25,7 @@ function App() {
         '956329766193-cdgv0o9gv6vtf1o1166l0fhnf72hudg4.apps.googleusercontent.com',
       callback: handleGoogleCallbackResponse,
     });
+
     google.accounts.id.renderButton(
       document.getElementById('sign-in-btn'),
       {
@@ -32,6 +33,8 @@ function App() {
         size: 'large',
       }
     );
+
+    google.accounts.id.prompt();
   }, []);
   return (
     <div className='App'>
